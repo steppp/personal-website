@@ -31,13 +31,23 @@ export const {
         },
         fontSizes: {
             presentationTitle: '60px',
+            presentationTitleDesktop: '64px',
             presentationSubtitle: '40px',
+            presentationSubtitleDesktop: '60px',
             presentationTextButton: '24px',
+            presentationTextButtonDesktop: '36px',
             presentationText: '20px',
+            presentationTextDesktop: '40px',
             navBarButtonLabel: '20px',
+            navBarButtonLabelDesktop: '32px',
             navMenuLinkLabel: '64px',
+            navMenuLinkLabelDesktop: '72px',
         }
     },
-    media: {},
+    media: {
+        sm: '(min-width: 640px)',
+        md: '(min-width: 768px)',
+        lg: '(min-width: 1024px)',
+    },
     utils: {},
 })
