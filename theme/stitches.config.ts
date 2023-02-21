@@ -40,6 +40,10 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
 				bigger: '40px',
 				huge: '60px',
 			},
+			radii: {
+				outer: 32,
+				inner: 24,
+			},
 		},
 		media: {
 			sm: '(min-width: 640px)',
