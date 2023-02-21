@@ -6,10 +6,14 @@ export const StyledNavBar = styled('nav', {
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'stretch',
-	width: '300px',
-	height: '40px',
+	maxWidth: '90%',
 	position: 'fixed',
+	left: '50%',
 	bottom: '$medium',
-	left: 'auto',
-	right: 'auto',
+	padding: '$small',
+	transform: 'translate(-50%, 0)',
+
+	'& > * + *': {
+		marginLeft: '$small',
+	},
 })

@@ -1,8 +1,15 @@
 import React from 'react'
+import Button from '../Button'
 import { StyledNavBar } from './styles'
 
 const NavBar = () => {
-	return <StyledNavBar></StyledNavBar>
+	return (
+		<StyledNavBar>
+			<Button>Home</Button>
+			<Button>About</Button>
+			<Button iconName="hamburger" onClick={(e) => console.debug({ e })} />
+		</StyledNavBar>
+	)
 }
 
 export default NavBar

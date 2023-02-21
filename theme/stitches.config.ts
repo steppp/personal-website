@@ -41,8 +41,15 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
 				huge: '60px',
 			},
 			radii: {
-				outer: 32,
-				inner: 24,
+				outer: '32px',
+				inner: '24px',
+			},
+			sizes: {
+				iconSmall: 14,
+				iconRegular: 20,
+				iconMedium: 32,
+				iconBig: 48,
+				iconHuge: 60,
 			},
 		},
 		media: {
