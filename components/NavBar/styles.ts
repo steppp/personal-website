@@ -12,8 +12,18 @@ export const StyledNavBar = styled('nav', {
 	bottom: '$medium',
 	padding: '$small',
 	transform: 'translate(-50%, 0)',
+	fontFamily: '$heading',
+	fontSize: '$default',
 
 	'& > * + *': {
 		marginLeft: '$small',
+	},
+
+	'@md': {
+		top: '$big',
+		right: '$big',
+		bottom: 'auto',
+		left: 'auto',
+		transform: 'none',
 	},
 })

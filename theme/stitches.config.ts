@@ -1,6 +1,21 @@
 import { createStitches } from '@stitches/react'
+import localFont from '@next/font/local'
 
-export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, config } =
+const codeNextHairline = localFont({ src: '../fonts/CodeNext-Trial-Hairline.woff2', weight: '100' })
+const codeNextThin = localFont({ src: '../fonts/CodeNext-Trial-Thin.woff2', weight: '200' })
+const codeNextLight = localFont({ src: '../fonts/CodeNext-Trial-Light.woff2', weight: '300' })
+const codeNextBook = localFont({ src: '../fonts/CodeNext-Trial-Book.woff2', weight: '400' })
+const codeNextRegular = localFont({ src: '../fonts/CodeNext-Trial-Regular.woff2', weight: '500' })
+const codeNextSemiBold = localFont({ src: '../fonts/CodeNext-Trial-SemiBold.woff2', weight: '600' })
+const codeNextBold = localFont({ src: '../fonts/CodeNext-Trial-Bold.woff2', weight: '700' })
+const codeNextExtraBold = localFont({
+	src: '../fonts/CodeNext-Trial-ExtraBold.woff2',
+	weight: '800',
+})
+const codeNextHeavy = localFont({ src: '../fonts/CodeNext-Trial-Heavy.woff2', weight: '900' })
+const codeNextBlack = localFont({ src: '../fonts/CodeNext-Trial-Black.woff2', weight: '1000' })
+
+const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, config } =
 	createStitches({
 		theme: {
 			colors: {
@@ -17,7 +32,7 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
 				grayDark3: '#606060',
 			},
 			fonts: {
-				heading: 'CodeNext-Trial, sans-serif',
+				heading: `${codeNextBold.style.fontFamily}, sans-serif`,
 				text: 'SF Pro Display, sans-serif',
 				mono: 'Menlo, monospace',
 			},
@@ -59,3 +74,5 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
 		},
 		utils: {},
 	})
+
+export { styled, css, globalCss, keyframes, getCssText, theme, createTheme, config }

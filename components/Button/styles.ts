@@ -8,6 +8,17 @@ export const StyledButton = styled('button', {
 	padding: '$default',
 	border: 'none',
 	width: 'auto',
+	backgroundColor: '$primaryAccent1',
+	color: '$grayLight1',
+
+	variants: {
+		plain: {
+			true: {
+				backgroundColor: 'transparent',
+				color: '$grayLight1',
+			},
+		},
+	},
 })
 
 export const StyledButtonIcon = styled('div', {

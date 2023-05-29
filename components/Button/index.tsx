@@ -7,11 +7,12 @@ interface ButtonProps {
 	iconName?: string
 	onClick?: MouseEventHandler
 	children?: React.ReactNode
+	plain?: boolean
 }
 
 const Button = ({ onClick, href, iconName, children, ...props }: ButtonProps) => {
 	return (
-		<StyledButton onClick={onClick}>
+		<StyledButton onClick={onClick} plain={props.plain}>
 			{iconName && (
 				<StyledButtonIcon hasText={children !== undefined}>
 					<Icon name={iconName} role="button icon" />
