@@ -1,6 +1,6 @@
 import { styled } from '@/theme/stitches.config'
 
-export const StyledNavBar = styled('nav', {
+export const StyledNavbar = styled('nav', {
 	backgroundColor: '$grayDark1',
 	borderRadius: '$outer',
 	display: 'flex',

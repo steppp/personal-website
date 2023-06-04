@@ -1,6 +1,7 @@
-import { styled } from '@/theme/stitches.config'
+import { styled, css } from '@/theme/stitches.config'
+import Link from 'next/link'
 
-export const StyledButton = styled('button', {
+const commonStyles = css({
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
@@ -19,6 +20,14 @@ export const StyledButton = styled('button', {
 			},
 		},
 	},
+})
+
+export const StyledLink = styled(Link, commonStyles, {
+	textDecoration: 'none',
+})
+
+export const StyledButton = styled('button', {
+	...commonStyles,
 })
 
 export const StyledButtonIcon = styled('div', {

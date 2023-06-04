@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react'
 import Icon from '../Icon'
-import { StyledButton, StyledButtonIcon } from './styles'
+import { StyledButton, StyledButtonIcon, StyledLink } from './styles'
 
 interface ButtonProps {
 	href?: string
@@ -11,15 +11,17 @@ interface ButtonProps {
 }
 
 const Button = ({ onClick, href, iconName, children, ...props }: ButtonProps) => {
+	const WrapperComponent = (!!href ? StyledLink : StyledButton) as React.ElementType
+
 	return (
-		<StyledButton onClick={onClick} plain={props.plain}>
+		<WrapperComponent href={href} onClick={onClick} plain={props.plain}>
 			{iconName && (
 				<StyledButtonIcon hasText={children !== undefined}>
 					<Icon name={iconName} role="button icon" />
 				</StyledButtonIcon>
 			)}
 			{children}
-		</StyledButton>
+		</WrapperComponent>
 	)
 }
 
