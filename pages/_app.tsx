@@ -1,4 +1,4 @@
-import NavBar from '@/components/Navbar'
+import NavBar from '@/components/NavBar'
 import { globalStyles } from '@/theme/global'
 import { css } from '@/theme/stitches.config'
 import type { AppProps } from 'next/app'
