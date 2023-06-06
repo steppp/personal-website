@@ -8,7 +8,7 @@ const commonStyles = css({
 	borderRadius: '$inner',
 	padding: '$default',
 	border: 'none',
-	width: 'auto',
+	width: 'max-content',
 	backgroundColor: '$primaryAccent1',
 	color: '$grayLight1',
 

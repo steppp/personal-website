@@ -26,4 +26,18 @@ export const StyledNavbar = styled('nav', {
 		left: 'auto',
 		transform: 'none',
 	},
+
+	variants: {
+		open: {
+			true: {
+				flexDirection: 'column',
+				alignItems: 'end',
+
+				'& > * + *': {
+					marginLeft: '0',
+					marginTop: '$small',
+				},
+			},
+		},
+	},
 })
