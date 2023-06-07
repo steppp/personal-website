@@ -14,7 +14,7 @@ export const StyledNavbar = styled('nav', {
 	transform: 'translate(-50%, 0)',
 	fontFamily: '$heading',
 	fontSize: '$default',
-	minHeight: 'calc($navbarHeight)',
+	height: 'calc($navbarHeight)',
 
 	'& > * + *': {
 		marginLeft: '$small',
@@ -37,6 +37,7 @@ export const StyledNavbar = styled('nav', {
 			true: {
 				flexDirection: 'column',
 				alignItems: 'end',
+				height: 'auto',
 
 				'& > * + *': {
 					marginLeft: '0',
