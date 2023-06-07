@@ -33,14 +33,14 @@ const NavBar = ({ items }: NavbarModel) => {
 		const localItems = [...items]
 
 		// select the element whose URL matches the pathname
-		const activeRouteItemIndex = items?.findIndex((item) => router.asPath == item.href)
-		const activeRouteItem = items[activeRouteItemIndex]
+		const activeRouteItemIndex = localItems?.findIndex((item) => router.asPath == item.href)
+		const activeRouteItem = localItems[activeRouteItemIndex]
 		localItems.splice(activeRouteItemIndex, 1)
 		setActiveItem(activeRouteItem)
 
 		// the next clickable element will be the first one whose URL do not match the active one
-		const nextRouteItemIndex = items?.findIndex((item) => item.href !== activeRouteItem?.href)
-		const nextRouteItem = items[nextRouteItemIndex]
+		const nextRouteItemIndex = localItems?.findIndex((item) => item.href !== activeRouteItem?.href)
+		const nextRouteItem = localItems[nextRouteItemIndex]
 		localItems.splice(nextRouteItemIndex, 1)
 		setNextItem(nextRouteItem)
 
@@ -66,7 +66,7 @@ const NavBar = ({ items }: NavbarModel) => {
 						{item.label}
 					</Button>
 				))}
-			<Button iconName="hamburger" onClick={toggleMenuOpen} />
+			<Button iconName="hamburger" ratio={1} onClick={toggleMenuOpen} />
 		</StyledNavbar>
 	)
 }

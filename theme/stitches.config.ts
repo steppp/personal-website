@@ -60,11 +60,12 @@ const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, confi
 				inner: '24px',
 			},
 			sizes: {
-				iconSmall: 14,
-				iconRegular: 20,
-				iconMedium: 32,
-				iconBig: 48,
-				iconHuge: 60,
+				iconSmall: '14px',
+				iconRegular: '20px',
+				iconMedium: '32px',
+				iconBig: '48px',
+				iconHuge: '60px',
+				navbarHeight: '78px',
 			},
 		},
 		media: {

@@ -1,14 +1,14 @@
 import { styled } from '@/theme/stitches.config'
 
 export const StyledIcon = styled('i', {
-	width: '$iconSmall',
-	height: '$iconSmall',
+	width: '$iconRegular',
+	height: '$iconRegular',
 	display: 'block',
 	minWidth: 'max-content',
 
 	'& svg': {
-		width: '$iconSmall',
-		height: '$iconSmall',
+		width: '$iconRegular',
+		height: '$iconRegular',
 		minWidth: 'max-content',
 		minHeight: 'max-content',
 

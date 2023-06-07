@@ -11,6 +11,7 @@ const commonStyles = css({
 	width: 'max-content',
 	backgroundColor: '$primaryAccent1',
 	color: '$grayLight1',
+	aspectRatio: '$$aR',
 
 	variants: {
 		plain: {

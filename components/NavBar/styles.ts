@@ -5,7 +5,7 @@ export const StyledNavbar = styled('nav', {
 	borderRadius: '$outer',
 	display: 'flex',
 	justifyContent: 'center',
-	alignItems: 'stretch',
+	alignItems: 'center',
 	maxWidth: '90%',
 	position: 'fixed',
 	left: '50%',
@@ -14,9 +14,14 @@ export const StyledNavbar = styled('nav', {
 	transform: 'translate(-50%, 0)',
 	fontFamily: '$heading',
 	fontSize: '$default',
+	minHeight: 'calc($navbarHeight)',
 
 	'& > * + *': {
 		marginLeft: '$small',
+	},
+
+	'& > *': {
+		height: '100%',
 	},
 
 	'@md': {
