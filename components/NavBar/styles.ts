@@ -21,7 +21,7 @@ export const StyledNavbar = styled('nav', {
 	},
 
 	'& > *': {
-		height: '100%',
+		height: '$navbarButtonHeight',
 	},
 
 	'@md': {

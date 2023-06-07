@@ -66,6 +66,7 @@ const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, confi
 				iconBig: '52px',
 				iconHuge: '64px',
 				navbarHeight: '78px',
+				navbarButtonHeight: '62px',
 			},
 		},
 		media: {
