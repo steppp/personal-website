@@ -1,19 +1,31 @@
 import { NavbarItemModel, NavbarModel } from '@/models/components/Navbar'
+import { theme } from '@/theme/stitches.config'
+import { motion, MotionProps, stagger, useAnimate, Variant } from 'framer-motion'
 import { useRouter } from 'next/router'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { ElementType, useEffect, useRef, useState } from 'react'
 import Button from '../Button'
-import { StyledNavbar } from './styles'
+import {
+	StyledNavbar,
+	StyledNavbarContent,
+	StyledNavbarItem,
+	StyledNavbarOpenNavbarItem,
+} from './styles'
 
 const NavBar = ({ items }: NavbarModel) => {
 	// item which highlights the page we are currently on
 	const [activeItem, setActiveItem] = useState<NavbarItemModel>()
 	// item which is the only clickable element besides the hamburger button
 	const [nextItem, setNextItem] = useState<NavbarItemModel>()
-	const [open, setOpen] = useState<boolean>(false)
+	const [open, setOpen] = useState(false)
 	const [hiddenItems, setHiddenItems] = useState<NavbarItemModel[]>([])
-	const navbarRef = useRef<HTMLDivElement>(null)
 	const router = useRouter()
-	const navbarWidth = navbarRef.current?.clientWidth
+
+	const [scope, animate] = useAnimate<HTMLDivElement>()
+
+	// this will set the minWidth navbar style
+	// so the width is free to increase
+	// and by doing so, we can set a minimum value for the navbar width
+	let [navbarWidth, setNavbarWidth] = useState(-1)
 
 	if (!items?.length) {
 		throw new Error('No items provided')
@@ -23,6 +35,17 @@ const NavBar = ({ items }: NavbarModel) => {
 		setOpen(!open)
 	}
 
+	// set navbar minimum width
+	useEffect(() => {
+		if (navbarWidth > scope.current?.clientWidth) {
+			return
+		}
+
+		setNavbarWidth(scope.current?.clientWidth)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [scope, scope.current?.clientWidth])
+
+	// update visible navbar items
 	useEffect(() => {
 		if (!router.isReady) {
 			return
@@ -47,26 +70,108 @@ const NavBar = ({ items }: NavbarModel) => {
 		setHiddenItems(localItems)
 	}, [router, items])
 
+	// animate the navbar when opening/closing
+	useEffect(() => {
+		async function myAnimation(open: boolean) {
+			// first half of the animation: fade out the navbar items
+			await animate(
+				`${StyledNavbarItem}`,
+				{
+					opacity: [1, 0],
+					x: open ? 0 : [0, 20],
+					y: open ? [0, 20] : 0,
+				},
+				{
+					delay: stagger(0.05),
+				}
+			)
+			await animate(
+				`${StyledNavbarItem}`,
+				{
+					x: 0,
+					y: 0,
+					marginLeft: open ? 0 : theme.space.small.computedValue,
+					marginTop: open ? theme.space.small.computedValue : 0,
+				},
+				{
+					duration: 0,
+				}
+			)
+			await animate(
+				`${StyledNavbarItem}:first-child`,
+				{
+					marginLeft: 0,
+					marginTop: 0,
+				},
+				{
+					duration: 0,
+				}
+			)
+
+			await animate(
+				`${StyledNavbarOpenNavbarItem}`,
+				{
+					display: open ? 'inline-block' : 'none',
+				},
+				{
+					duration: 0,
+				}
+			)
+			// mid animation: change the flex direction of the navbar
+			await animate(`${StyledNavbarContent}`, {
+				height: open ? 300 : 72,
+				flexDirection: open ? 'column' : 'row',
+				alignItems: open ? 'end' : 'center',
+			})
+
+			// second half of the animation: fade in the navbar items
+			await animate(
+				`${StyledNavbarItem}`,
+				{
+					opacity: [0, 1],
+					y: open ? 0 : [20, 0],
+					x: open ? [20, 0] : 0,
+				},
+				{
+					delay: stagger(0.05),
+				}
+			)
+		}
+
+		myAnimation(open)
+	}, [open, animate, scope])
+
 	return (
 		<StyledNavbar
 			open={open}
-			ref={navbarRef}
+			ref={scope}
 			css={{
-				width: open ? `${navbarWidth}px` : 'auto',
+				minWidth: `${navbarWidth}px`,
 			}}
+			initial={false}
 		>
-			<Button plain href={activeItem?.href}>
-				{activeItem?.label}
-			</Button>
-			<Button href={nextItem?.href}>{nextItem?.label}</Button>
-			{open &&
-				// show also remaining menu items when the navbar is open
-				hiddenItems?.map((item) => (
-					<Button key={item.href} href={item.href}>
-						{item.label}
+			<StyledNavbarContent>
+				<StyledNavbarItem>
+					<Button plain href={activeItem?.href}>
+						{activeItem?.label}
 					</Button>
-				))}
-			<Button iconName="hamburger" ratio={1} onClick={toggleMenuOpen} />
+				</StyledNavbarItem>
+				<StyledNavbarItem>
+					<Button href={nextItem?.href}>{nextItem?.label}</Button>
+				</StyledNavbarItem>
+				{
+					// add remaining menu items, which are hidden when the navbar is closed
+					// this is needed (?) to allow them to be displayed mid-transition
+					hiddenItems?.map((item) => (
+						<StyledNavbarOpenNavbarItem key={item.href}>
+							<Button href={item.href}>{item.label}</Button>
+						</StyledNavbarOpenNavbarItem>
+					))
+				}
+				<StyledNavbarItem>
+					<Button iconName="hamburger" ratio={1} onClick={toggleMenuOpen} />
+				</StyledNavbarItem>
+			</StyledNavbarContent>
 		</StyledNavbar>
 	)
 }

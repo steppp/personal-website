@@ -1,20 +1,15 @@
 import { styled } from '@/theme/stitches.config'
+import { motion } from 'framer-motion'
 
-export const StyledNavbar = styled('nav', {
-	backgroundColor: '$grayDark1',
-	borderRadius: '$outer',
+export const StyledNavbarContent = styled(motion.ul, {
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	maxWidth: '90%',
-	position: 'fixed',
-	left: '50%',
-	bottom: '$medium',
+	flexDirection: 'row',
 	padding: '$small',
-	transform: 'translate(-50%, 0)',
-	fontFamily: '$heading',
-	fontSize: '$default',
-	height: 'calc($navbarHeight)',
+	height: '$navbarHeight',
+	fontSize: 'inherit',
+	width: 'auto',
 
 	'& > * + *': {
 		marginLeft: '$small',
@@ -22,7 +17,24 @@ export const StyledNavbar = styled('nav', {
 
 	'& > *': {
 		height: '$navbarButtonHeight',
+
+		'& > * ': {
+			height: 'inherit',
+		},
 	},
+})
+
+export const StyledNavbar = styled(motion.nav, {
+	backgroundColor: '$grayDark1',
+	borderRadius: '$outer',
+	maxWidth: '90%',
+	position: 'fixed',
+	left: '50%',
+	bottom: '$medium',
+	transform: 'translate(-50%, 0)',
+	fontFamily: '$heading',
+	fontSize: '$default',
+	width: 'auto',
 
 	'@md': {
 		top: '$big',
@@ -31,19 +43,26 @@ export const StyledNavbar = styled('nav', {
 		left: 'auto',
 		transform: 'none',
 	},
-
 	variants: {
 		open: {
 			true: {
-				flexDirection: 'column',
-				alignItems: 'end',
-				height: 'auto',
+				[`& ${StyledNavbarContent}`]: {
+					alignItems: 'end',
 
-				'& > * + *': {
-					marginLeft: '0',
-					marginTop: '$small',
+					'& > * + *': {
+						marginLeft: '0',
+						marginTop: '$small',
+					},
 				},
 			},
 		},
 	},
+})
+
+export const StyledNavbarItem = styled(motion.li, {
+	listStyle: 'none',
+})
+
+export const StyledNavbarOpenNavbarItem = styled(StyledNavbarItem, {
+	display: 'none',
 })
