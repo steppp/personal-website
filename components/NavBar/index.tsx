@@ -34,11 +34,6 @@ const NavBar = ({ items }: NavbarModel) => {
 	const [scope, animate] = useAnimate<HTMLDivElement>()
 	const navbarContentRef = useRef<HTMLUListElement>(null)
 
-	// this will set the minWidth navbar style
-	// so the width is free to increase
-	// and by doing so, we can set a minimum value for the navbar width
-	const [navbarWidth, setNavbarWidth] = useState(-1)
-
 	if (!items?.length) {
 		throw new Error('No items provided')
 	}
@@ -46,16 +41,6 @@ const NavBar = ({ items }: NavbarModel) => {
 	const toggleMenuOpen = () => {
 		setOpen(!open)
 	}
-
-	// set navbar minimum width
-	useEffect(() => {
-		if (navbarWidth > scope.current?.clientWidth) {
-			return
-		}
-
-		setNavbarWidth(scope.current?.clientWidth)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [scope, scope.current?.clientWidth])
 
 	// update visible navbar items
 	useEffect(() => {
@@ -85,6 +70,16 @@ const NavBar = ({ items }: NavbarModel) => {
 	// animate the navbar when opening/closing
 	useEffect(() => {
 		async function myAnimation(open: boolean) {
+			// pre animation: if navbar is opening, set a fixed width
+			// this will set the minWidth navbar style
+			// so the width is free to increase
+			// and by doing so, we can set a minimum value for the navbar width
+			if (open) {
+				animate(scope.current, {
+					width: scope.current?.clientWidth,
+				})
+			}
+
 			// first half of the animation: fade out the navbar items
 			await animate(
 				`${StyledNavbarItem}`,
@@ -177,17 +172,10 @@ const NavBar = ({ items }: NavbarModel) => {
 		}
 
 		myAnimation(open)
-	}, [open, animate, scope, items.length])
+	}, [open, animate, scope, items.length, router.asPath])
 
 	return (
-		<StyledNavbar
-			open={open}
-			ref={scope}
-			css={{
-				minWidth: `${navbarWidth}px`,
-			}}
-			initial={false}
-		>
+		<StyledNavbar open={open} ref={scope} initial={false} key={router.asPath}>
 			<StyledNavbarContent ref={navbarContentRef}>
 				<StyledNavbarItem>
 					<Button plain href={activeItem?.href}>
