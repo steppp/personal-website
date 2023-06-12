@@ -7,7 +7,7 @@ export const StyledNavbarContent = styled(motion.ul, {
 	alignItems: 'center',
 	flexDirection: 'row',
 	padding: '$small',
-	height: '$navbarHeight',
+	// height: '$navbarHeight',
 	fontSize: 'inherit',
 	width: 'auto',
 

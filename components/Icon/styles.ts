@@ -9,8 +9,8 @@ export const StyledIcon = styled('i', {
 	'& svg': {
 		width: '$iconRegular',
 		height: '$iconRegular',
-		minWidth: 'max-content',
-		minHeight: 'max-content',
+		minWidth: 'auto',
+		minHeight: 'auto',
 
 		'& path': {
 			stroke: '$grayLight1',

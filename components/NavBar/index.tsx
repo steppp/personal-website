@@ -11,6 +11,17 @@ import {
 	StyledNavbarOpenNavbarItem,
 } from './styles'
 
+const navbarAnimationDuration = 0.2
+const navbarItemAnimationOffset = 10
+const navbarItemAnimationStagger = 0.03
+
+/**
+ * Converts a string pixel unit with the px suffix to a number
+ * @param value the value to be converted with the px suffix
+ * @returns a number representing the value without the px suffix
+ */
+const unitWithoutPx = (value: string) => Number(value.replace(/px$/, ''))
+
 const NavBar = ({ items }: NavbarModel) => {
 	// item which highlights the page we are currently on
 	const [activeItem, setActiveItem] = useState<NavbarItemModel>()
@@ -21,11 +32,12 @@ const NavBar = ({ items }: NavbarModel) => {
 	const router = useRouter()
 
 	const [scope, animate] = useAnimate<HTMLDivElement>()
+	const navbarContentRef = useRef<HTMLUListElement>(null)
 
 	// this will set the minWidth navbar style
 	// so the width is free to increase
 	// and by doing so, we can set a minimum value for the navbar width
-	let [navbarWidth, setNavbarWidth] = useState(-1)
+	const [navbarWidth, setNavbarWidth] = useState(-1)
 
 	if (!items?.length) {
 		throw new Error('No items provided')
@@ -78,11 +90,12 @@ const NavBar = ({ items }: NavbarModel) => {
 				`${StyledNavbarItem}`,
 				{
 					opacity: [1, 0],
-					x: open ? 0 : [0, 20],
-					y: open ? [0, 20] : 0,
+					x: open ? 0 : [0, navbarItemAnimationOffset],
+					y: open ? [0, navbarItemAnimationOffset] : 0,
 				},
 				{
-					delay: stagger(0.05),
+					duration: navbarAnimationDuration,
+					delay: stagger(navbarItemAnimationStagger),
 				}
 			)
 			await animate(
@@ -108,6 +121,8 @@ const NavBar = ({ items }: NavbarModel) => {
 				}
 			)
 
+			// mid animation: change the flex direction of the navbar
+			// show hidden elements
 			await animate(
 				`${StyledNavbarOpenNavbarItem}`,
 				{
@@ -117,29 +132,52 @@ const NavBar = ({ items }: NavbarModel) => {
 					duration: 0,
 				}
 			)
-			// mid animation: change the flex direction of the navbar
-			await animate(`${StyledNavbarContent}`, {
-				height: open ? 300 : 72,
-				flexDirection: open ? 'column' : 'row',
-				alignItems: open ? 'end' : 'center',
-			})
+			// update flex items direction
+			await animate(
+				`${StyledNavbarContent}`,
+				{
+					flexDirection: open ? 'column' : 'row',
+					alignItems: open ? 'end' : 'center',
+				},
+				{
+					duration: 0,
+				}
+			)
+			// update navbar height
+			await animate(
+				scope.current,
+				{
+					// use theme token values to get the correct height
+					height: open
+						? // need to use the unitWithoutPx function since the value of the token
+						  // contains the unit string (px) and we need to remove it to perform calculations
+						  (items.length + 1) * unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
+						  (items.length + 2) * unitWithoutPx(theme.space.small.value)
+						: unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
+						  2 * unitWithoutPx(theme.space.small.value),
+				},
+				{
+					duration: navbarAnimationDuration,
+				}
+			)
 
 			// second half of the animation: fade in the navbar items
 			await animate(
 				`${StyledNavbarItem}`,
 				{
 					opacity: [0, 1],
-					y: open ? 0 : [20, 0],
-					x: open ? [20, 0] : 0,
+					y: open ? 0 : [navbarItemAnimationOffset, 0],
+					x: open ? [navbarItemAnimationOffset, 0] : 0,
 				},
 				{
-					delay: stagger(0.05),
+					duration: navbarAnimationDuration,
+					delay: stagger(navbarItemAnimationStagger),
 				}
 			)
 		}
 
 		myAnimation(open)
-	}, [open, animate, scope])
+	}, [open, animate, scope, items.length])
 
 	return (
 		<StyledNavbar
@@ -150,7 +188,7 @@ const NavBar = ({ items }: NavbarModel) => {
 			}}
 			initial={false}
 		>
-			<StyledNavbarContent>
+			<StyledNavbarContent ref={navbarContentRef}>
 				<StyledNavbarItem>
 					<Button plain href={activeItem?.href}>
 						{activeItem?.label}
