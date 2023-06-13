@@ -7,7 +7,6 @@ export const StyledNavbarContent = styled(motion.ul, {
 	alignItems: 'center',
 	flexDirection: 'row',
 	padding: '$small',
-	// height: '$navbarHeight',
 	fontSize: 'inherit',
 	width: 'auto',
 
@@ -35,6 +34,7 @@ export const StyledNavbar = styled(motion.nav, {
 	fontSize: '$default',
 	width: 'auto',
 	translate: '-50% 0',
+	opacity: 0,
 
 	'@md': {
 		top: '$big',
@@ -61,6 +61,19 @@ export const StyledNavbar = styled(motion.nav, {
 
 export const StyledNavbarItem = styled(motion.li, {
 	listStyle: 'none',
+
+	variants: {
+		disabled: {
+			true: {
+				pointerEvents: 'none',
+			},
+		},
+	},
+})
+
+export const StyledNavbarHamburgerItem = styled(StyledNavbarItem, {
+	listStyle: 'none',
+	display: 'inline-block',
 })
 
 export const StyledNavbarOpenNavbarItem = styled(StyledNavbarItem, {
