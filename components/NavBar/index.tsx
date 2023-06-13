@@ -42,6 +42,38 @@ const NavBar = ({ items }: NavbarModel) => {
 		setOpen(!open)
 	}
 
+	// add navbar items event listeners
+	// useEffect(() => {
+	// 	const animatedNavigation = async (evt: Event) => {
+	// 		evt.preventDefault()
+
+	// 		await animate(
+	// 			scope.current,
+	// 			{
+	// 				y: window.innerHeight - scope.current?.offsetTop + 10,
+	// 			},
+	// 			{
+	// 				duration: 0.5,
+	// 				ease: 'easeOut',
+	// 			}
+	// 		)
+	// 		const anchor = evt.target as HTMLAnchorElement
+	// 		router.push(anchor.href)
+	// 	}
+
+	// 	const navbarItems = scope.current?.querySelectorAll(`${StyledNavbarItem}`)
+	// 	const navbarItemsArray = navbarItems && Array.from(navbarItems)
+	// 	navbarItemsArray.forEach((item) => {
+	// 		item.addEventListener('click', animatedNavigation)
+	// 	})
+
+	// 	return () => {
+	// 		navbarItemsArray.forEach((item) => {
+	// 			item.removeEventListener('click', animatedNavigation)
+	// 		})
+	// 	}
+	// }, [scope, animate, router.asPath, router])
+
 	// update visible navbar items
 	useEffect(() => {
 		if (!router.isReady) {
@@ -172,7 +204,11 @@ const NavBar = ({ items }: NavbarModel) => {
 		}
 
 		myAnimation(open)
-	}, [open, animate, scope, items.length, router.asPath])
+	}, [open, animate, scope, items.length])
+
+	useEffect(() => {
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [router.asPath])
 
 	return (
 		<StyledNavbar open={open} ref={scope} initial={false} key={router.asPath}>

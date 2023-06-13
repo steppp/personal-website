@@ -31,10 +31,10 @@ export const StyledNavbar = styled(motion.nav, {
 	position: 'fixed',
 	left: '50%',
 	bottom: '$medium',
-	transform: 'translate(-50%, 0)',
 	fontFamily: '$heading',
 	fontSize: '$default',
 	width: 'auto',
+	translate: '-50% 0',
 
 	'@md': {
 		top: '$big',
