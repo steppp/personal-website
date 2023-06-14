@@ -1,6 +1,27 @@
 import { styled } from '@/theme/stitches.config'
 import { motion } from 'framer-motion'
 
+export const StyledNavbarItem = styled(motion.li, {
+	listStyle: 'none',
+
+	variants: {
+		disabled: {
+			true: {
+				pointerEvents: 'none',
+			},
+		},
+	},
+})
+
+export const StyledNavbarHamburgerItem = styled(StyledNavbarItem, {
+	listStyle: 'none',
+	display: 'inline-block',
+})
+
+export const StyledNavbarOpenNavbarItem = styled(StyledNavbarItem, {
+	display: 'none',
+})
+
 export const StyledNavbarContent = styled(motion.ul, {
 	display: 'flex',
 	justifyContent: 'center',
@@ -34,7 +55,13 @@ export const StyledNavbar = styled(motion.nav, {
 	fontSize: '$default',
 	width: 'auto',
 	translate: '-50% 0',
-	opacity: 0,
+	// opacity: 0,
+	[`& ${StyledNavbarContent}`]: {
+		[`& ${StyledNavbarItem}`]: {
+			transform: `translate(0, $$itemsAnimationOffset)`,
+			opacity: 0,
+		},
+	},
 
 	'@md': {
 		top: '$big',
@@ -57,25 +84,4 @@ export const StyledNavbar = styled(motion.nav, {
 			},
 		},
 	},
-})
-
-export const StyledNavbarItem = styled(motion.li, {
-	listStyle: 'none',
-
-	variants: {
-		disabled: {
-			true: {
-				pointerEvents: 'none',
-			},
-		},
-	},
-})
-
-export const StyledNavbarHamburgerItem = styled(StyledNavbarItem, {
-	listStyle: 'none',
-	display: 'inline-block',
-})
-
-export const StyledNavbarOpenNavbarItem = styled(StyledNavbarItem, {
-	display: 'none',
 })

@@ -28,9 +28,13 @@ const NavBar = ({ items }: NavbarModel) => {
 	const [activeItem, setActiveItem] = useState<NavbarItemModel>()
 	// item which is the only clickable element besides the hamburger button
 	const [nextItem, setNextItem] = useState<NavbarItemModel>()
-	const [open, setOpen] = useState(false)
+	const [open, setOpen1] = useState(false)
+	const setOpen = (open: boolean) => {
+		setOpen1(open)
+	}
 	const [hiddenItems, setHiddenItems] = useState<NavbarItemModel[]>([])
 	const router = useRouter()
+	const afterNavbarTransition = useRef(false)
 
 	const [scope, animate] = useAnimate<HTMLDivElement>()
 	const navbarContentRef = useRef<HTMLUListElement>(null)
@@ -48,19 +52,22 @@ const NavBar = ({ items }: NavbarModel) => {
 	useEffect(() => {
 		console.group('Navbar initial state')
 
-		const initialAnimation = async () => {
+		const initialAnimation = async (open: boolean) => {
 			// put the navbar offsceen initially
 			// and make it visible (hidden by default from the stylesheet)
 			await animate(
-				scope.current,
+				`${StyledNavbarItem}`,
 				{
-					y: window.innerHeight - scope.current?.offsetTop + 10,
-					opacity: 1,
+					opacity: [0, 1],
+					y: open ? 0 : [navbarItemAnimationOffset, 0],
+					x: open ? [navbarItemAnimationOffset, 0] : 0,
 				},
 				{
-					duration: 0,
+					duration: navbarAnimationDuration,
+					delay: stagger(navbarItemAnimationStagger),
 				}
 			)
+
 			// set the margins of the items to allow precise navbar width calculation
 			// without this, this same computation would be executed only on first load
 			// then after changing page and a navbar reload, the items margins would change
@@ -77,40 +84,66 @@ const NavBar = ({ items }: NavbarModel) => {
 			)
 
 			// make it slide into the view as soon as it loads
-			await animate(
-				scope.current,
-				{
-					y: 0,
-				},
-				{
-					duration: 0.3,
-					ease: 'easeOut',
-				}
-			)
+			// await animate(
+			// 	scope.current,
+			// 	{
+			// 		y: 0,
+			// 	},
+			// 	{
+			// 		duration: 0.3,
+			// 		ease: 'easeOut',
+			// 	}
+			// )
 		}
 
 		// set the default state as closed
 		// since this could be in an incoherent state otherwise
 		// when navigating to another page
-		setOpen(false)
-		initialAnimation()
+		// setOpen(false)
+		if (afterNavbarTransition.current) {
+			return
+		}
 
-		// add navbar items event listeners
+		initialAnimation(open)
+		afterNavbarTransition.current = false
+
+		console.groupEnd()
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [scope, animate, router.asPath, router])
+
+	// add navbar items event listener
+	// to animate the navigation
+	useEffect(() => {
 		const animatedNavigation = async (evt: Event) => {
 			evt.preventDefault()
+			evt.stopImmediatePropagation()
 
-			await animate(
-				scope.current,
-				{
-					y: window.innerHeight - scope.current?.offsetTop + 10,
-				},
-				{
-					duration: 0.5,
-					ease: 'easeOut',
-				}
-			)
+			if (!open) {
+				await animate(
+					`${StyledNavbarItem}`,
+					{
+						opacity: [1, 0],
+						y: [0, navbarItemAnimationOffset],
+						x: 0,
+					},
+					{
+						duration: navbarAnimationDuration,
+						delay: stagger(navbarItemAnimationStagger),
+					}
+				)
+			}
+
+			// signal that we already have a scheduled transition
+			if (open) {
+				afterNavbarTransition.current = true
+			}
+
 			const anchor = evt.target as HTMLAnchorElement
 			router.push(anchor.href)
+
+			// always reset to the closed state
+			setOpen(false)
 		}
 
 		const navbarItems = scope.current?.querySelectorAll(
@@ -118,6 +151,7 @@ const NavBar = ({ items }: NavbarModel) => {
 		)
 		const navbarItemsArray = navbarItems && Array.from(navbarItems)
 		navbarItemsArray.forEach((item) => {
+			item.removeEventListener('click', animatedNavigation)
 			item.addEventListener('click', animatedNavigation)
 		})
 
@@ -128,9 +162,7 @@ const NavBar = ({ items }: NavbarModel) => {
 				item.removeEventListener('click', animatedNavigation)
 			})
 		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [scope, animate, router.asPath, router])
+	}, [animate, items.length, router, scope])
 
 	// update visible navbar items
 	useEffect(() => {
@@ -209,8 +241,6 @@ const NavBar = ({ items }: NavbarModel) => {
 				{
 					x: 0,
 					y: 0,
-					marginLeft: open ? 0 : theme.space.small.computedValue,
-					marginTop: open ? theme.space.small.computedValue : 0,
 				},
 				{
 					duration: 0,
@@ -288,7 +318,14 @@ const NavBar = ({ items }: NavbarModel) => {
 	}, [open, animate, scope, items.length])
 
 	return (
-		<StyledNavbar open={open} ref={scope} initial={false} key={router.asPath}>
+		<StyledNavbar
+			open={open}
+			ref={scope}
+			initial={false}
+			css={{
+				$$itemsAnimationOffset: navbarItemAnimationOffset + 'px',
+			}}
+		>
 			<StyledNavbarContent ref={navbarContentRef}>
 				<StyledNavbarItem disabled>
 					<Button plain href={activeItem?.href}>
