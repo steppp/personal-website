@@ -119,35 +119,63 @@ const NavBar = ({ items }: NavbarModel) => {
 			evt.preventDefault()
 			evt.stopImmediatePropagation()
 
-			if (!open) {
-				await animate(
-					`${StyledNavbarItem}`,
-					{
-						opacity: [1, 0],
-						y: [0, navbarItemAnimationOffset],
-						x: 0,
-					},
-					{
-						duration: navbarAnimationDuration,
-						delay: stagger(navbarItemAnimationStagger),
-					}
-				)
-			}
+			await animate(
+				`${StyledNavbarItem}`,
+				{
+					opacity: [1, 0],
+					y: open ? 0 : [0, navbarItemAnimationOffset],
+					x: open ? [0, navbarItemAnimationOffset] : 0,
+				},
+				{
+					duration: navbarAnimationDuration,
+					delay: stagger(navbarItemAnimationStagger),
+				}
+			)
+			await animate(
+				`${StyledNavbarItem}:not(:first-child)`,
+				{
+					marginLeft: open ? 0 : theme.space.small.computedValue,
+					marginTop: open ? theme.space.small.computedValue : 0,
+				},
+				{
+					duration: 0,
+				}
+			)
+			await animate(
+				`${StyledNavbarItem}`,
+				{
+					x: 0,
+					y: 0,
+				},
+				{
+					duration: 0,
+				}
+			)
+			await animate(
+				`${StyledNavbarItem}:first-child`,
+				{
+					marginLeft: 0,
+					marginTop: 0,
+				},
+				{
+					duration: 0,
+				}
+			)
 
 			// signal that we already have a scheduled transition
 			if (open) {
 				afterNavbarTransition.current = true
 			}
 
-			const anchor = evt.target as HTMLAnchorElement
-			router.push(anchor.href)
-
 			// always reset to the closed state
 			setOpen(false)
+
+			const anchor = evt.target as HTMLAnchorElement
+			router.push(anchor.href)
 		}
 
 		const navbarItems = scope.current?.querySelectorAll(
-			`${StyledNavbarItem}:not(${StyledNavbarHamburgerItem})`
+			`${StyledNavbarItem}:not(${StyledNavbarHamburgerItem}), ${StyledNavbarOpenNavbarItem}`
 		)
 		const navbarItemsArray = navbarItems && Array.from(navbarItems)
 		navbarItemsArray.forEach((item) => {
@@ -162,7 +190,7 @@ const NavBar = ({ items }: NavbarModel) => {
 				item.removeEventListener('click', animatedNavigation)
 			})
 		}
-	}, [animate, items.length, router, scope])
+	}, [animate, items.length, router, scope, open])
 
 	// update visible navbar items
 	useEffect(() => {
