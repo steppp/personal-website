@@ -23,6 +23,113 @@ const navbarItemAnimationStagger = 0.03
  */
 const unitWithoutPx = (value: string) => Number(value.replace(/px$/, ''))
 
+const openCloseAnimations = {
+	step1: async ({ animate, open }: any) => {
+		console.group('openCloseAnimations.step1')
+		await animate(
+			`${StyledNavbarItem}`,
+			{
+				opacity: [1, 0],
+				x: open ? 0 : [0, navbarItemAnimationOffset],
+				y: open ? [0, navbarItemAnimationOffset] : 0,
+			},
+			{
+				duration: navbarAnimationDuration,
+				delay: stagger(navbarItemAnimationStagger),
+			}
+		)
+		console.groupEnd()
+	},
+	step2: async ({ animate, scope, open, items }: any) => {
+		console.group('openCloseAnimations.step2')
+		await animate(
+			`${StyledNavbarItem}:not(:first-child)`,
+			{
+				marginLeft: open ? 0 : theme.space.small.computedValue,
+				marginTop: open ? theme.space.small.computedValue : 0,
+			},
+			{
+				duration: 0,
+			}
+		)
+		await animate(
+			`${StyledNavbarItem}`,
+			{
+				x: 0,
+				y: 0,
+			},
+			{
+				duration: 0,
+			}
+		)
+		await animate(
+			`${StyledNavbarItem}:first-child`,
+			{
+				marginLeft: 0,
+				marginTop: 0,
+			},
+			{
+				duration: 0,
+			}
+		)
+
+		await animate(
+			`${StyledNavbarOpenNavbarItem}`,
+			{
+				display: open ? 'inline-block' : 'none',
+			},
+			{
+				duration: 0,
+			}
+		)
+		// update flex items direction
+		await animate(
+			`${StyledNavbarContent}`,
+			{
+				flexDirection: open ? 'column' : 'row',
+				alignItems: open ? 'end' : 'center',
+			},
+			{
+				duration: 0,
+			}
+		)
+		// update navbar height
+		await animate(
+			scope.current,
+			{
+				// use theme token values to get the correct height
+				height: open
+					? // need to use the unitWithoutPx function since the value of the token
+					  // contains the unit string (px) and we need to remove it to perform calculations
+					  (items.length + 1) * unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
+					  (items.length + 2) * unitWithoutPx(theme.space.small.value)
+					: unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
+					  2 * unitWithoutPx(theme.space.small.value),
+			},
+			{
+				duration: navbarAnimationDuration,
+			}
+		)
+		console.groupEnd()
+	},
+	step3: async ({ animate, open }: any) => {
+		console.group('openCloseAnimations.step3')
+		await animate(
+			`${StyledNavbarItem}`,
+			{
+				opacity: [0, 1],
+				y: open ? 0 : [navbarItemAnimationOffset, 0],
+				x: open ? [navbarItemAnimationOffset, 0] : 0,
+			},
+			{
+				duration: navbarAnimationDuration,
+				delay: stagger(navbarItemAnimationStagger),
+			}
+		)
+		console.groupEnd()
+	},
+}
+
 const NavBar = ({ items }: NavbarModel) => {
 	// item which highlights the page we are currently on
 	const [activeItem, setActiveItem] = useState<NavbarItemModel>()
@@ -34,7 +141,8 @@ const NavBar = ({ items }: NavbarModel) => {
 	}
 	const [hiddenItems, setHiddenItems] = useState<NavbarItemModel[]>([])
 	const router = useRouter()
-	const afterNavbarTransition = useRef(false)
+	const afterOpenNavigation = useRef(false)
+	const afterClosedNavigation = useRef(false)
 
 	const [scope, animate] = useAnimate<HTMLDivElement>()
 	const navbarContentRef = useRef<HTMLUListElement>(null)
@@ -50,126 +158,46 @@ const NavBar = ({ items }: NavbarModel) => {
 	// initial state of the navbar
 	// and add navbar items event listeners
 	useEffect(() => {
-		console.group('Navbar initial state')
-
 		const initialAnimation = async (open: boolean) => {
-			// put the navbar offsceen initially
-			// and make it visible (hidden by default from the stylesheet)
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					opacity: [0, 1],
-					y: open ? 0 : [navbarItemAnimationOffset, 0],
-					x: open ? [navbarItemAnimationOffset, 0] : 0,
-				},
-				{
-					duration: navbarAnimationDuration,
-					delay: stagger(navbarItemAnimationStagger),
-				}
-			)
+			// run the first step of the animation since the navbar items
+			// are hidden in the default state
+			await openCloseAnimations.step2({ animate, scope, open, items })
 
 			// set the margins of the items to allow precise navbar width calculation
 			// without this, this same computation would be executed only on first load
 			// then after changing page and a navbar reload, the items margins would change
 			// immediately, making the calculation of the navbar width wrong
-			await animate(
-				`${StyledNavbarItem}:not(:first-child)`,
-				{
-					marginLeft: open ? 0 : theme.space.small.computedValue,
-					marginTop: open ? theme.space.small.computedValue : 0,
-				},
-				{
-					duration: 0,
-				}
-			)
-
-			// make it slide into the view as soon as it loads
-			// await animate(
-			// 	scope.current,
-			// 	{
-			// 		y: 0,
-			// 	},
-			// 	{
-			// 		duration: 0.3,
-			// 		ease: 'easeOut',
-			// 	}
-			// )
+			await openCloseAnimations.step3({ animate, open })
 		}
 
-		// set the default state as closed
-		// since this could be in an incoherent state otherwise
-		// when navigating to another page
-		// setOpen(false)
-		if (afterNavbarTransition.current) {
-			return
+		if (afterClosedNavigation.current) {
+			initialAnimation(false)
 		}
-
-		initialAnimation(open)
-		afterNavbarTransition.current = false
-
-		console.groupEnd()
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [scope, animate, router.asPath, router])
+		afterClosedNavigation.current = false
+	}, [scope, animate, router, items])
 
 	// add navbar items event listener
 	// to animate the navigation
 	useEffect(() => {
 		const animatedNavigation = async (evt: Event) => {
+			// skip the default routing logic
 			evt.preventDefault()
 			evt.stopImmediatePropagation()
 
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					opacity: [1, 0],
-					y: open ? 0 : [0, navbarItemAnimationOffset],
-					x: open ? [0, navbarItemAnimationOffset] : 0,
-				},
-				{
-					duration: navbarAnimationDuration,
-					delay: stagger(navbarItemAnimationStagger),
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}:not(:first-child)`,
-				{
-					marginLeft: open ? 0 : theme.space.small.computedValue,
-					marginTop: open ? theme.space.small.computedValue : 0,
-				},
-				{
-					duration: 0,
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					x: 0,
-					y: 0,
-				},
-				{
-					duration: 0,
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}:first-child`,
-				{
-					marginLeft: 0,
-					marginTop: 0,
-				},
-				{
-					duration: 0,
-				}
-			)
+			// run the first step of the animation before navigating to the next page
+			await openCloseAnimations.step1({ animate, scope, open: !open })
 
-			// signal that we already have a scheduled transition
+			// signal to skip the first step of the animation when navbar is open/closed
 			if (open) {
-				afterNavbarTransition.current = true
+				afterOpenNavigation.current = true
+			} else {
+				afterClosedNavigation.current = true
 			}
 
 			// always reset to the closed state
 			setOpen(false)
 
+			// programmatically trigger the previously cancelled navigation
 			const anchor = evt.target as HTMLAnchorElement
 			router.push(anchor.href)
 		}
@@ -183,8 +211,6 @@ const NavBar = ({ items }: NavbarModel) => {
 			item.addEventListener('click', animatedNavigation)
 		})
 
-		console.groupEnd()
-
 		return () => {
 			navbarItemsArray.forEach((item) => {
 				item.removeEventListener('click', animatedNavigation)
@@ -194,7 +220,6 @@ const NavBar = ({ items }: NavbarModel) => {
 
 	// update visible navbar items
 	useEffect(() => {
-		console.group('Navbar items update')
 		if (!router.isReady) {
 			return
 		}
@@ -216,16 +241,12 @@ const NavBar = ({ items }: NavbarModel) => {
 		setNextItem(nextRouteItem)
 
 		setHiddenItems(localItems)
-
-		console.groupEnd()
 	}, [router, items])
 
 	// animate the navbar when opening/closing
 	useEffect(() => {
-		console.group('Navbar open/close animation')
-
 		async function myAnimation(open: boolean) {
-			// pre animation: if navbar is opening, set a fixed width
+			// TODO: pre animation: if navbar is opening, set a fixed width
 			// this will set the minWidth navbar style
 			// so the width is free to increase
 			// and by doing so, we can set a minimum value for the navbar width
@@ -241,109 +262,24 @@ const NavBar = ({ items }: NavbarModel) => {
 				)
 			}
 
-			// first half of the animation: fade out the navbar items
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					opacity: [1, 0],
-					x: open ? 0 : [0, navbarItemAnimationOffset],
-					y: open ? [0, navbarItemAnimationOffset] : 0,
-				},
-				{
-					duration: navbarAnimationDuration,
-					delay: stagger(navbarItemAnimationStagger),
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}:not(:first-child)`,
-				{
-					marginLeft: open ? 0 : theme.space.small.computedValue,
-					marginTop: open ? theme.space.small.computedValue : 0,
-				},
-				{
-					duration: 0,
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					x: 0,
-					y: 0,
-				},
-				{
-					duration: 0,
-				}
-			)
-			await animate(
-				`${StyledNavbarItem}:first-child`,
-				{
-					marginLeft: 0,
-					marginTop: 0,
-				},
-				{
-					duration: 0,
-				}
-			)
+			if (!afterOpenNavigation.current) {
+				// step 1: fade out the navbar items
+				// not needed if navigating from the open navbar
+				// since the first step has already been performed before the navigation
+				await openCloseAnimations.step1({ animate, open })
+			}
+			afterOpenNavigation.current = false
 
-			// mid animation: change the flex direction of the navbar
+			// step 2: change the flex direction of the navbar
 			// show hidden elements
-			await animate(
-				`${StyledNavbarOpenNavbarItem}`,
-				{
-					display: open ? 'inline-block' : 'none',
-				},
-				{
-					duration: 0,
-				}
-			)
-			// update flex items direction
-			await animate(
-				`${StyledNavbarContent}`,
-				{
-					flexDirection: open ? 'column' : 'row',
-					alignItems: open ? 'end' : 'center',
-				},
-				{
-					duration: 0,
-				}
-			)
-			// update navbar height
-			await animate(
-				scope.current,
-				{
-					// use theme token values to get the correct height
-					height: open
-						? // need to use the unitWithoutPx function since the value of the token
-						  // contains the unit string (px) and we need to remove it to perform calculations
-						  (items.length + 1) * unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
-						  (items.length + 2) * unitWithoutPx(theme.space.small.value)
-						: unitWithoutPx(theme.sizes.navbarButtonHeight.value) +
-						  2 * unitWithoutPx(theme.space.small.value),
-				},
-				{
-					duration: navbarAnimationDuration,
-				}
-			)
+			await openCloseAnimations.step2({ animate, scope, open, items })
 
-			// second half of the animation: fade in the navbar items
-			await animate(
-				`${StyledNavbarItem}`,
-				{
-					opacity: [0, 1],
-					y: open ? 0 : [navbarItemAnimationOffset, 0],
-					x: open ? [navbarItemAnimationOffset, 0] : 0,
-				},
-				{
-					duration: navbarAnimationDuration,
-					delay: stagger(navbarItemAnimationStagger),
-				}
-			)
+			// step 3: fade in the navbar items
+			await openCloseAnimations.step3({ animate, open })
 		}
 
 		myAnimation(open)
-
-		console.groupEnd()
-	}, [open, animate, scope, items.length])
+	}, [open, animate, scope, items])
 
 	return (
 		<StyledNavbar
