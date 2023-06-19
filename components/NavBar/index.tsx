@@ -25,7 +25,7 @@ const unitWithoutPx = (value: string) => Number(value.replace(/px$/, ''))
 
 const openCloseAnimations = {
 	step1: async ({ animate, open }: any) => {
-		console.group('openCloseAnimations.step1')
+		console.debug('openCloseAnimations.step1')
 		await animate(
 			`${StyledNavbarItem}`,
 			{
@@ -38,10 +38,9 @@ const openCloseAnimations = {
 				delay: stagger(navbarItemAnimationStagger),
 			}
 		)
-		console.groupEnd()
 	},
-	step2: async ({ animate, scope, open, items }: any) => {
-		console.group('openCloseAnimations.step2')
+	step2: async ({ animate, scope, open, items, targetWidth }: any) => {
+		console.debug('openCloseAnimations.step2')
 		await animate(
 			`${StyledNavbarItem}:not(:first-child)`,
 			{
@@ -88,6 +87,7 @@ const openCloseAnimations = {
 			{
 				flexDirection: open ? 'column' : 'row',
 				alignItems: open ? 'end' : 'center',
+				width: open ? 'auto' : 'min-content',
 			},
 			{
 				duration: 0,
@@ -110,10 +110,20 @@ const openCloseAnimations = {
 				duration: navbarAnimationDuration,
 			}
 		)
-		console.groupEnd()
+	},
+	afterStep2: async ({ animate, scope, targetWidth }: any) => {
+		await animate(
+			scope.current,
+			{
+				width: targetWidth,
+			},
+			{
+				duration: navbarAnimationDuration,
+			}
+		)
 	},
 	step3: async ({ animate, open }: any) => {
-		console.group('openCloseAnimations.step3')
+		console.debug('openCloseAnimations.step3')
 		await animate(
 			`${StyledNavbarItem}`,
 			{
@@ -126,7 +136,6 @@ const openCloseAnimations = {
 				delay: stagger(navbarItemAnimationStagger),
 			}
 		)
-		console.groupEnd()
 	},
 }
 
@@ -135,10 +144,7 @@ const NavBar = ({ items }: NavbarModel) => {
 	const [activeItem, setActiveItem] = useState<NavbarItemModel>()
 	// item which is the only clickable element besides the hamburger button
 	const [nextItem, setNextItem] = useState<NavbarItemModel>()
-	const [open, setOpen1] = useState(false)
-	const setOpen = (open: boolean) => {
-		setOpen1(open)
-	}
+	const [open, setOpen] = useState(false)
 	const [hiddenItems, setHiddenItems] = useState<NavbarItemModel[]>([])
 	const router = useRouter()
 	const afterOpenNavigation = useRef(false)
@@ -159,14 +165,12 @@ const NavBar = ({ items }: NavbarModel) => {
 	// and add navbar items event listeners
 	useEffect(() => {
 		const initialAnimation = async (open: boolean) => {
-			// run the first step of the animation since the navbar items
-			// are hidden in the default state
 			await openCloseAnimations.step2({ animate, scope, open, items })
 
-			// set the margins of the items to allow precise navbar width calculation
-			// without this, this same computation would be executed only on first load
-			// then after changing page and a navbar reload, the items margins would change
-			// immediately, making the calculation of the navbar width wrong
+			// intermediate step: update the navbar width after the items has been placed
+			const targetWidth = navbarContentRef.current?.clientWidth
+			await openCloseAnimations.afterStep2({ animate, scope, targetWidth })
+
 			await openCloseAnimations.step3({ animate, open })
 		}
 
@@ -246,7 +250,7 @@ const NavBar = ({ items }: NavbarModel) => {
 	// animate the navbar when opening/closing
 	useEffect(() => {
 		async function myAnimation(open: boolean) {
-			// TODO: pre animation: if navbar is opening, set a fixed width
+			// pre animation: if navbar is opening, set a fixed width
 			// this will set the minWidth navbar style
 			// so the width is free to increase
 			// and by doing so, we can set a minimum value for the navbar width
@@ -273,6 +277,10 @@ const NavBar = ({ items }: NavbarModel) => {
 			// step 2: change the flex direction of the navbar
 			// show hidden elements
 			await openCloseAnimations.step2({ animate, scope, open, items })
+
+			// intermediate step: update the navbar width after the items has been placed
+			const targetWidth = navbarContentRef.current?.clientWidth
+			await openCloseAnimations.afterStep2({ animate, scope, targetWidth })
 
 			// step 3: fade in the navbar items
 			await openCloseAnimations.step3({ animate, open })

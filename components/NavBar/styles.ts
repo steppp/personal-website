@@ -29,7 +29,7 @@ export const StyledNavbarContent = styled(motion.ul, {
 	flexDirection: 'row',
 	padding: '$small',
 	fontSize: 'inherit',
-	width: 'auto',
+	width: 'min-content',
 
 	'& > * + *': {
 		marginLeft: '$small',
