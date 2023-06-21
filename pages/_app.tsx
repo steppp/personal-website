@@ -25,10 +25,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
 	return (
 		<>
-			<NavBar items={navBarRoutes} />
 			<main className={mainTagStyle()}>
 				<Component {...pageProps} />
 			</main>
+			<NavBar items={navBarRoutes} />
 		</>
 	)
 }
