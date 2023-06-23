@@ -63,6 +63,14 @@ const reset = {
 		isolation: 'isolate',
 		height: '100%',
 	},
+	/*
+		10. Hide the scrollbar
+	*/
+	'::-webkit-scrollbar': {
+		width: 0,
+		height: 0,
+		display: 'none',
+	},
 }
 
 export const globalStyles = globalCss(reset)
