@@ -1,13 +1,13 @@
+import PageSection from '@/components/Section'
 import SnappableContainer from '@/components/SnappableContainer'
-import SnappableSection from '@/components/SnappableSection'
 
 export default function Home() {
 	return (
 		<SnappableContainer>
-			<div>1</div>
-			<div>2</div>
-			<div>3</div>
-			<div>4</div>
+			<PageSection>1</PageSection>
+			<PageSection>2</PageSection>
+			<PageSection>3</PageSection>
+			<PageSection>4</PageSection>
 		</SnappableContainer>
 	)
 }

@@ -1,25 +1,30 @@
-import { PanInfo, useSpring, useTransform } from 'framer-motion'
+import { ScrollingProgressProvider } from '@/contexts/ScrollingProgress'
+import { useScroll, useSpring } from 'framer-motion'
 import { Children, useEffect, useRef, useState } from 'react'
 import SnappableSection from '../SnappableSection'
 import { StyledSnappableContainer } from './styles'
 
-const getSectionHeight = () => (typeof window !== 'undefined' ? window.innerHeight : 0)
-
 export default function SnappableContainer({ children }: React.PropsWithChildren) {
-	const [height, setHeight] = useState(0)
-	const childrenCount = Children.count(children)
+	const containerRef = useRef<HTMLDivElement>(null)
+
+	// get a MotionValue for the scroll progress of the contaienr element
+	const { scrollYProgress } = useScroll({ container: containerRef })
+	const [scrollYProgressValue, setScrollYProgressValue] = useState(0)
 
 	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			setHeight(childrenCount * getSectionHeight())
-		}
-	}, [childrenCount])
+		// update the progress state variable when the progress changes
+		scrollYProgress.on('change', (value) => {
+			setScrollYProgressValue(value)
+		})
+	}, [scrollYProgress])
 
 	return (
-		<StyledSnappableContainer css={{ $$height: height + 'px' }}>
-			{Children.map(children, (child, i) => (
-				<SnappableSection>{child}</SnappableSection>
-			))}
-		</StyledSnappableContainer>
+		<ScrollingProgressProvider scrollProgress={scrollYProgressValue}>
+			<StyledSnappableContainer ref={containerRef}>
+				{Children.map(children, (child) => (
+					<SnappableSection>{child}</SnappableSection>
+				))}
+			</StyledSnappableContainer>
+		</ScrollingProgressProvider>
 	)
 }
