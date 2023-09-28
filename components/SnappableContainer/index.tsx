@@ -19,12 +19,13 @@ export default function SnappableContainer({ children }: React.PropsWithChildren
 	}, [scrollYProgress])
 
 	return (
-		<ScrollingProgressProvider scrollProgress={scrollYProgressValue}>
-			<StyledSnappableContainer ref={containerRef}>
-				{Children.map(children, (child) => (
-					<SnappableSection>{child}</SnappableSection>
-				))}
-			</StyledSnappableContainer>
-		</ScrollingProgressProvider>
+		<></>
+		// <ScrollingProgressProvider scrollProgress={scrollYProgressValue}>
+		// 	<StyledSnappableContainer ref={containerRef}>
+		// 		{Children.map(children, (child) => (
+		// 			<SnappableSection>{child}</SnappableSection>
+		// 		))}
+		// 	</StyledSnappableContainer>
+		// </ScrollingProgressProvider>
 	)
 }
